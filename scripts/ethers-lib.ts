@@ -1,4 +1,10 @@
-import { ethers } from 'ethers'
+const { ethers } = require('ethers');
+const fs = require('fs');
+
+const privateKey = "0xprivate_key";
+
+const bscProvider = new ethers.providers.JsonRpcProvider('https://data-seed-prebsc-1-s3.binance.org:8545', { name: 'Tbinance', chainId: 97 }) //testnet
+
 
 /**
  * Deploy the given contract
@@ -12,12 +18,10 @@ export const deploy = async (contractName: string, args: Array<any>, accountInde
     console.log(`deploying ${contractName}`)
     // Note that the script needs the ABI which is generated from the compilation artifact.
     // Make sure contract is compiled and artifacts are generated
-    const artifactsPath = `browser/contracts/artifacts/${contractName}.json` // Change this for different path
+    const artifactsPath = `../contracts/artifacts/${contractName}.json` // Change this for different path
 
-    const metadata = JSON.parse(await remix.call('fileManager', 'getFile', artifactsPath))
-    // 'web3Provider' is a remix global variable object
-    
-    const signer = (new ethers.providers.Web3Provider(web3Provider)).getSigner(accountIndex)
+    const metadata = JSON.parse(fs.readFileSync(artifactsPath))
+    const signer = new ethers.Wallet(privateKey, bscProvider); 
 
     const factory = new ethers.ContractFactory(metadata.abi, metadata.data.bytecode.object, signer)
 
